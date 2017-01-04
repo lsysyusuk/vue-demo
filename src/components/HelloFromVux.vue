@@ -5,20 +5,9 @@
     <h1>{{ msg }}</h1>
   </div>
   <group title="预定">
-    <cell title="10:00-12:00" :is-link="false">
-      <flexbox >
-         <flexbox-item><div class="flex-demo">&nbsp;</div></flexbox-item>
-         <flexbox-item><div class="flex-demo">&nbsp;</div></flexbox-item>
-         <flexbox-item><div class="flex-demo">&nbsp;</div></flexbox-item>
-         <flexbox-item><div class="flex-demo">&nbsp;</div></flexbox-item>
-      </flexbox>
-    </cell>
-    <cell title="10:00-12:00" :is-link="false">
+    <cell v-for="eipsodeList in episodeLists" :title="treatEpisode(eipsodeList.episode)" :is-link="false">
       <button-tab class='court-list'>
-         <button-tab-item class='court-l' @click='court' ></button-tab-item>
-         <button-tab-item class='court-r' @click='court'  selected></button-tab-item>
-         <button-tab-item class='court-l' @click='court' ></button-tab-item>
-         <button-tab-item class='court-r' @click='court' ></button-tab-item>
+         <button-tab-item v-for="(index, court) in eipsodeList.courtlist" :class="[treatDivide2(index) ?'court-l' : 'court-r', court.status ? 'active' : '']"  @click='courtClick(court)' ></button-tab-item>
       </button-tab>
     </cell>
   </group>
@@ -37,17 +26,26 @@ export default {
     ButtonTabItem
   },
   data () {
+    var episodeData = '[{"episode": "10","courtlist":[{"court":1, "status":0},{"court":2, "status":0},{"court":3, "status":0},{"court":4, "status":0}]},{"episode": "12","courtlist":[{"court":1, "status":0},{"court":2, "status":0},{"court":3, "status":0},{"court":4, "status":0}]}]';
+    var episodeJson = JSON.parse(episodeData);
     return {
       // note: changing this line won't causes changes
       // with hot-reload because the reloaded component
       // preserves its current state and we are modifying
       // its initial state.
-      msg: 'Hello World!'
+      msg: 'Hello World!',
+      episodeLists: episodeJson
     }
   },
   methods: {
-      court: function () {
-         console.log(this.$el);
+      courtClick: function (court) {
+         court.status = (court.status + 1) % 2;
+      },
+      treatEpisode: function(num) {
+          return (num +':00-' + (parseInt(num)+2) + ':00');
+      },
+      treatDivide2: function(num) {
+        return (num % 2) > 0 ? false : true
       }
   }
 }
@@ -106,11 +104,13 @@ export default {
    border: 0 !important;
    height: 3rem !important;
 }
-.court-l .active {
+.court-l.active {
    background: url(../assets/court-l-active.png) no-repeat center!important;
+   background-size:100% 100% !important;
 }
-.court-r .active {
+.court-r.active {
    background: url(../assets/court-r-active.png) no-repeat center!important;
+   background-size:100% 100% !important;
 }
 
 </style>
