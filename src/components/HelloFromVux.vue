@@ -5,16 +5,17 @@
     <h1>{{ msg }}</h1>
   </div>
   <group title="预定">
-    <cell v-for="eipsode in episodeList" :title="treatEpisode(eipsode)" :is-link="false" >
+    <cell v-for="courtList in episode_court_map" :title="treatEpisode(courtList.episode)" :is-link="false" >
       <button-tab class='court-list'>
-         <button-tab-item v-for="(index, court) in courtList" :class="[treatDivide2(index) ?'court-l' : 'court-r']"  @click='courtClick(court, episode)' ></button-tab-item>
+         <button-tab-item v-for="(index, court) in courtList.courtList" :class="[treatDivide2(index) ?'court-l' : 'court-r', isDisable(courtList.episode, court) ? 'disable' : '', court.status == 1 ? 'active' : '']"  @click='courtClick(court)' ></button-tab-item>
       </button-tab>
     </cell>
   </group>
 </template>
 
 <script>
-import {XHeader, Group, Cell, Flexbox, FlexboxItem, ButtonTab, ButtonTabItem} from 'vux/src/components'
+import {XHeader, Group, Cell, Flexbox, FlexboxItem, ButtonTab, ButtonTabItem} from 'vux/src/components';
+import { _ } from 'underscore/underscore-min'
 export default {
   components: {
     Group,
@@ -30,10 +31,17 @@ export default {
     var episodeJson = JSON.parse(episodeData);
     var episodeList = [10, 12, 14, 16, 18, 20];
     var courtList = [1, 2, 3, 4];
-
+    var episode_court_map = _.map(episodeList, function (_episode) {
+      // var court_status_map = _.map(courtList, function (_court) {
+        // return {"court" : _court, "status": 0};
+      // })
+      return {"episode" : _episode, "courtList" : _.map(courtList, function (_court) {
+        return {"court" : _court, "status": 0};
+      })};
+    })
+    console.log(episode_court_map);
     var appointDate = '[{"_id" : "5860f30ece8d803c719fdef4","customerId" : 1,"customerName" : "syusuk","appointDate" : "2017-01-05","appointInfo" : [ {"episode" : 10,  "court" : 1, "status": 1 }, { "episode" : 12, "court" : 2, "status" : 1 } ], "valid" : 1, "isPay" : 1 }, {"_id" : "5860f33ece8d803c719fdef5","customerId" : 2,"customerName" : ".","appointDate" : "2017-01-05","appointInfo" : [ {"episode" : 16,  "court" : 3, "status": 1 }, { "episode" : 16, "court" : 4, "status" : 1 } ], "valid" : 1, "isPay" : 1 }]';
     var customerAppoint = {"customerId" : 1, "customerName" : "syusuk", "appointDate" : "2017-01-05", "appointInfo":[]};
-    console.log(customerAppoint);
     var appointJson = JSON.parse(appointDate);
     return {
       // note: changing this line won't causes changes
@@ -43,13 +51,19 @@ export default {
       msg: 'Hello World!',
       episodeLists: episodeJson,
       episodeList: episodeList,
-      courtList: courtList,
-      appointJson: appointJson
+      // courtList: courtList,
+      appointJson: appointJson,
+      episode_court_map: episode_court_map
     }
   },
   methods: {
-      courtClick: function (court, episode) {
-         // court.status = (court.status + 1) % 2;
+      courtClick: function (court) {
+        if (court.status == 2) {
+          return
+        }
+        console.log(court.status);
+        court.status = (court.status + 1) % 2;
+        console.log(court.status);
       },
       treatEpisode: function(num) {
           return (num +':00-' + (parseInt(num)+2) + ':00');
@@ -58,7 +72,21 @@ export default {
         return (num % 2) > 0 ? false : true
       },
       isDisable: function (episode, court) {
-        
+        var _court = court;
+        var _episode = episode;
+        var map = _.some(this.appointJson, function (e) {
+          return _.some(e.appointInfo, function (ee) {
+            if (ee.status == 1 && ee.episode == _episode && ee.court == _court.court) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+        })
+        if (map) {
+          _court.status = 2;
+        }
+        return map;
       }
   }
 }
