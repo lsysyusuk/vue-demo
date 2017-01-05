@@ -5,9 +5,9 @@
     <h1>{{ msg }}</h1>
   </div>
   <group title="预定">
-    <cell v-for="eipsodeList in episodeLists" :title="treatEpisode(eipsodeList.episode)" :is-link="false">
+    <cell v-for="eipsode in episodeList" :title="treatEpisode(eipsode)" :is-link="false" >
       <button-tab class='court-list'>
-         <button-tab-item v-for="(index, court) in eipsodeList.courtlist" :class="[treatDivide2(index) ?'court-l' : 'court-r', court.status ? 'active' : '']"  @click='courtClick(court)' ></button-tab-item>
+         <button-tab-item v-for="(index, court) in courtList" :class="[treatDivide2(index) ?'court-l' : 'court-r']"  @click='courtClick(court, episode)' ></button-tab-item>
       </button-tab>
     </cell>
   </group>
@@ -28,24 +28,37 @@ export default {
   data () {
     var episodeData = '[{"episode": "10","courtlist":[{"court":1, "status":0},{"court":2, "status":0},{"court":3, "status":0},{"court":4, "status":0}]},{"episode": "12","courtlist":[{"court":1, "status":0},{"court":2, "status":0},{"court":3, "status":0},{"court":4, "status":0}]}]';
     var episodeJson = JSON.parse(episodeData);
+    var episodeList = [10, 12, 14, 16, 18, 20];
+    var courtList = [1, 2, 3, 4];
+
+    var appointDate = '[{"_id" : "5860f30ece8d803c719fdef4","customerId" : 1,"customerName" : "syusuk","appointDate" : "2017-01-05","appointInfo" : [ {"episode" : 10,  "court" : 1, "status": 1 }, { "episode" : 12, "court" : 2, "status" : 1 } ], "valid" : 1, "isPay" : 1 }, {"_id" : "5860f33ece8d803c719fdef5","customerId" : 2,"customerName" : ".","appointDate" : "2017-01-05","appointInfo" : [ {"episode" : 16,  "court" : 3, "status": 1 }, { "episode" : 16, "court" : 4, "status" : 1 } ], "valid" : 1, "isPay" : 1 }]';
+    var customerAppoint = {"customerId" : 1, "customerName" : "syusuk", "appointDate" : "2017-01-05", "appointInfo":[]};
+    console.log(customerAppoint);
+    var appointJson = JSON.parse(appointDate);
     return {
       // note: changing this line won't causes changes
       // with hot-reload because the reloaded component
       // preserves its current state and we are modifying
       // its initial state.
       msg: 'Hello World!',
-      episodeLists: episodeJson
+      episodeLists: episodeJson,
+      episodeList: episodeList,
+      courtList: courtList,
+      appointJson: appointJson
     }
   },
   methods: {
-      courtClick: function (court) {
-         court.status = (court.status + 1) % 2;
+      courtClick: function (court, episode) {
+         // court.status = (court.status + 1) % 2;
       },
       treatEpisode: function(num) {
           return (num +':00-' + (parseInt(num)+2) + ':00');
       },
       treatDivide2: function(num) {
         return (num % 2) > 0 ? false : true
+      },
+      isDisable: function (episode, court) {
+        
       }
   }
 }
@@ -110,6 +123,14 @@ export default {
 }
 .court-r.active {
    background: url(../assets/court-r-active.png) no-repeat center!important;
+   background-size:100% 100% !important;
+}
+.court-l.disable {
+   background: url(../assets/court-l-disable.png) no-repeat center!important;
+   background-size:100% 100% !important;
+}
+.court-r.disable {
+   background: url(../assets/court-r-disable.png) no-repeat center!important;
    background-size:100% 100% !important;
 }
 
