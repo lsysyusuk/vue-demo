@@ -1,22 +1,26 @@
 <template>
-  <x-header :left-options="{showBack: false}" ></x-header>
-  <scroller v-el:scroller v-ref:scroller lock-y :scrollbar-x="false">
+  <div class="appoint">
+    <x-header :left-options="{showBack: false}" ></x-header>
+  <scroller v-ref:scroller v-ref:scroller lock-y :scrollbar-x="false">
     <div id="scroll-content" v-el:scrollcontent :style="calculateWidth(weekList)" >
       <div class="scroll-item" v-for="item in weekList" @click="changeDay(item.date)" >
         {{item.name}}<br><span>{{treatDate(item.date)}}</span>
     </div>
   </div>
 </scroller>
-  <group>
-    <cell :is-link="false"></cell>
-    <cell v-for="courtList in episode_court_map" :title="treatEpisode(courtList.episode)" :is-link="false" >
+  <cell v-for="courtList in episode_court_map" :title="treatEpisode(courtList.episode)" :is-link="false" >
       <button-tab class='court-list'>
          <button-tab-item v-for="(index, court) in courtList.courtList" :class="[treatDivide2(index) ?'court-l' : 'court-r', court.status == 2 ? 'disable' : '', court.status == 1 ? 'active' : '']"  @click='courtClick(court)' ><span>￥200</span></button-tab-item>
       </button-tab>
     </cell>
     <cell :is-link="false"></cell>
-  </group>
+  <!-- <group>
+    <cell :is-link="false"></cell>
+    
+  </group> -->
   <x-button type='primary' style="position: fixed; bottom: 0; background-color:#f27330" @click='doAppoint'>我要预定</x-button>
+  </div>
+  
 </template>
 
 <script>
@@ -59,7 +63,7 @@ export default {
   ready (){
     console.log("ready start");
     var that = this;
-    that.$http.get('http://10.3.1.5/lantu/customer/appointList.json?date=2017-01-05',{'date': '2017-01-05'}).then(function (res) {
+    that.$http.get('http://127.0.0.1/lantu/customer/appointList.json?date=2017-01-05',{'date': '2017-01-05'}).then(function (res) {
       that.episode_court_map = res.data.episode_court_map;
       that.appointJson = res.data.appointJson;
     });
@@ -92,7 +96,7 @@ export default {
       this.$nextTick(() => {
         this.$refs.scroller.reset()
       })
-      console.log(width);
+      console.log(this.$refs);
     },
     treatDate: function (date) {
       return date.substring(5);
@@ -126,6 +130,8 @@ export default {
 <style>
 .vux-header {
   background-color: #f27330 !important;
+  margin: 0 0 0.2rem;
+  box-shadow: 0 0 0.5rem #000;
 }
 .vux-demo {
   text-align: center;
@@ -145,8 +151,9 @@ export default {
   -webkit-background-clip: padding-box;
 }
 .weui_cell {
-   padding: 0.3rem !important;
-   height: 3rem !important;
+  padding: 0 !important;
+  margin: 0.5rem 0.5rem 0rem !important;
+  height: 3rem !important;
 }
 .vux-button-group > a:first-child {
     border-width: 1px;
@@ -160,15 +167,27 @@ export default {
     background-clip: padding-box;
 }
 .court-list {
-   width: 16.5rem;
+   /*width: 16.5rem;*/
+   display: block !important;
 }
 .court-l {
   position: relative;
-  margin-left: 0.1rem;
+  padding-left: 0.1rem;
   background: url(../assets/court-l.png) no-repeat center!important;
   background-size:100% 100% !important;
   border: 0 !important;
   height: 3rem !important;
+  display: inline-block !important;
+  width: 25% !important;
+}
+.court-r {
+  position: relative;
+  background: url(../assets/court-r.png) no-repeat center!important;
+  background-size:100% 100% !important;
+  border: 0 !important;
+  height: 3rem !important;
+  display: inline-block !important;
+  width: 25% !important;
 }
 .court-l span{
   position: absolute;
@@ -181,13 +200,6 @@ export default {
   left: 0.2rem;
   top: 0.6rem;
   color: #999;
-}
-.court-r {
-  position: relative;
-  background: url(../assets/court-r.png) no-repeat center!important;
-  background-size:100% 100% !important;
-  border: 0 !important;
-  height: 3rem !important;
 }
 .court-l.active {
    background: url(../assets/court-l-active.png) no-repeat center!important;
@@ -215,12 +227,30 @@ export default {
   border: 0 !important;
 }
 .weui_cell_primary {
-  -webkit-box-fles: 0 !important;
-  flex: 0 !important;
+  -webkit-box-fles: 1 !important;
+  flex: 1 !important;
+  font-size: 0.8rem;
+}
+.weui_cell_ft {
+  -webkit-flex-box: 3;
+  flex: 3;
 }
 .scroll-item {
   display: inline-block;
-  width: 4.6rem;
+  width: 4.4rem;
   text-align: center;
+  box-shadow: 0 0.1rem 0.2rem #f27330;
+  margin: 0 0.1rem 0.2rem;
+}
+.appoint {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  font-size: 16px;
+  height: 100%;
+  background: url(../assets/flour.png);
 }
 </style>
