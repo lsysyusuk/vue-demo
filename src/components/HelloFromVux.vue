@@ -13,9 +13,10 @@
          <button-tab-item v-for="(index, court) in courtList.courtList" :class="[treatDivide2(index) ?'court-l' : 'court-r', court.status == 2 ? 'disable' : '', court.status == 1 ? 'active' : '']"  @click='courtClick(court)' ><span>￥200</span></button-tab-item>
       </button-tab>
     </cell>
+    <cell :is-link="false" style='display: block; text-align: left'><span class='description avai'>&nbsp;&nbsp;&nbsp; </span><span style='color:#000'>可预订</span><span class='description choose'>&nbsp;&nbsp;&nbsp; </span><span style='color:#000'>选中</span><span class='description disable'>&nbsp;&nbsp;&nbsp; </span><span style='color:#000'>不可定</span></cell>
     <cell :is-link="false"></cell>
   <!-- <group>
-    <cell :is-link="false"></cell>
+    
     
   </group> -->
   <x-button type='primary' style="position: fixed; bottom: 0; background-color:#f27330" @click='doAppoint'>我要预定</x-button>
@@ -263,5 +264,17 @@ export default {
   font-size: 16px;
   height: 100%;
   background: url(../assets/flour.png);
+}
+.description {
+  margin: 0 0.3rem 0 2rem; 
+}
+.description.avai {
+  background-color: #ffffff;
+}
+.description.choose {
+  background-color: #f27330;
+}
+.description.disable {
+  background-color: #bfbfbf;
 }
 </style>
