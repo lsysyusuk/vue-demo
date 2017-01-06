@@ -1,22 +1,27 @@
 <template>
 <x-header :left-options="{showBack: false}" ></x-header>
-  <div class="vux-demo">
-    <!-- <img class="logo" src="../assets/vux_logo.png">
-    <h1>{{ msg }}</h1> -->
-  </div>
+  <!-- <div class="vux-demo">
+    <img class="logo" src="../assets/vux_logo.png">
+    <h1>{{ msg }}</h1>
+  </div> -->
+    <scroller :menu='weekList'></scroller>
+  
   <group title="预定">
+    <!-- <cell :is-link="false"></cell> -->
     <cell v-for="courtList in episode_court_map" :title="treatEpisode(courtList.episode)" :is-link="false" >
       <button-tab class='court-list'>
          <button-tab-item v-for="(index, court) in courtList.courtList" :class="[treatDivide2(index) ?'court-l' : 'court-r', court.status == 2 ? 'disable' : '', court.status == 1 ? 'active' : '']"  @click='courtClick(court)' ><span>￥200</span></button-tab-item>
       </button-tab>
     </cell>
+    <cell :is-link="false"></cell>
   </group>
   <x-button type='primary' style="position: fixed; bottom: 0; background-color:#f27330" @click='doAppoint'>我要预定</x-button>
 </template>
 
 <script>
 import {XHeader, Group, Cell, ButtonTab, ButtonTabItem, XButton} from 'vux/src/components';
-import { _ } from 'underscore/underscore-min'
+import { _ } from 'underscore/underscore-min';
+import Scroller from './Scroller'
 export default {
   components: {
     Group,
@@ -24,11 +29,13 @@ export default {
     XHeader,
     ButtonTab,
     ButtonTabItem,
-    XButton
+    XButton,
+    Scroller
   },
   data: function (){
     console.log("data start");
     var customerAppoint = {"customerId" : 1, "customerName" : "syusuk", "appointDate" : "2017-01-05", "appointInfo":[]};
+    var weekList = [{'name':'周一'}, {'name':'周二'}, {'name':'周三'}, {'name':'周四'}, {'name':'周五'}, {'name':'周六'}, {'name':'周日'}];
     return {
       // note: changing this line won't causes changes
       // with hot-reload because the reloaded component
@@ -36,14 +43,15 @@ export default {
       // its initial state.
       msg: 'Hello World!',
       appointJson: [],
-      episode_court_map: []
+      episode_court_map: [],
+      weekList: weekList
     }
     
   },
-  ready () {
+  ready (){
     console.log("ready start");
     var that = this;
-    that.$http.get('http://127.0.0.1/lantu/customer/appointList.json?date=2017-01-05',{'date': '2017-01-05'}).then(function (res) {
+    that.$http.get('http://10.3.1.5/lantu/customer/appointList.json?date=2017-01-05',{'date': '2017-01-05'}).then(function (res) {
       that.episode_court_map = res.data.episode_court_map;
       that.appointJson = res.data.appointJson;
     });
@@ -160,7 +168,8 @@ export default {
 .weui_cell:before {
   border: 0 !important;
 }
-/*.weui_cells {
-  font-size: 1rem !important;
-}*/
+.weui_cell_primary {
+  -webkit-box-fles: 0 !important;
+  flex: 0 !important;
+}
 </style>
