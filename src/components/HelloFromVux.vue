@@ -3,7 +3,7 @@
     <x-header :left-options="{showBack: false}" ></x-header>
   <scroller v-ref:scroller v-ref:scroller lock-y :scrollbar-x="false">
     <div id="scroll-content" v-el:scrollcontent :style="calculateWidth(weekList)" >
-      <div class="scroll-item" v-for="item in weekList" @click="changeDay(item.date)" >
+      <div class="scroll-item" v-for="item in weekList" :class="[current_date == item.date ? 'active' : '']" @click="changeDay(item.date)" >
         {{item.name}}<br><span>{{treatDate(item.date)}}</span>
     </div>
   </div>
@@ -56,14 +56,15 @@ export default {
       // its initial state.
       appointJson: [],
       episode_court_map: [],
-      weekList: weekList
+      weekList: weekList,
+      current_date: weekList[2].date
     }
     
   },
   ready (){
     console.log("ready start");
     var that = this;
-    that.$http.get('http://127.0.0.1/lantu/customer/appointList.json?date=2017-01-05',{'date': '2017-01-05'}).then(function (res) {
+    that.$http.get('http://127.0.0.1/lantu/customer/appointList.json?date=' + that.current_date,{'date': '2017-01-05'}).then(function (res) {
       that.episode_court_map = res.data.episode_court_map;
       that.appointJson = res.data.appointJson;
     });
@@ -88,15 +89,20 @@ export default {
       return "width:" + weekList.length * 4.6 + "rem";
     },
     changeDay: function (date) {
-      this.weekList.push(this.next_day(date));
-      var width = this.$els.scrollcontent.style.width;
-      width = width.substring(0, width.length-5);
-      width = (parseInt(width) + 4.6) + "rem";
-      this.$els.scrollcontent.style.width = width
-      this.$nextTick(() => {
-        this.$refs.scroller.reset()
-      })
-      console.log(this.$refs);
+      // this.weekList.push(this.next_day(date));
+      // var width = this.$els.scrollcontent.style.width;
+      // width = width.substring(0, width.length-5);
+      // width = (parseInt(width) + 4.6) + "rem";
+      // this.$els.scrollcontent.style.width = width
+      // this.$nextTick(() => {
+      //   this.$refs.scroller.reset()
+      // })
+      this.current_date = date;
+      var that = this;
+      that.$http.get('http://127.0.0.1/lantu/customer/appointList.json?date=' + that.current_date, {'date': '2017-01-05'}).then(function (res) {
+        that.episode_court_map = res.data.episode_court_map;
+        that.appointJson = res.data.appointJson;
+      });
     },
     treatDate: function (date) {
       return date.substring(5);
@@ -109,6 +115,8 @@ export default {
           d = new Date(d);
         } else {
           d = new Date();
+          d = +d - 1000*60*60*24*2;
+          d = new Date(d);
         }
         var month = (d.getMonth()+1);
         var day = d.getDate();
@@ -241,6 +249,9 @@ export default {
   text-align: center;
   box-shadow: 0 0.1rem 0.2rem #f27330;
   margin: 0 0.1rem 0.2rem;
+}
+.scroll-item.active {
+  background-color: #f27330;
 }
 .appoint {
   position: absolute;
