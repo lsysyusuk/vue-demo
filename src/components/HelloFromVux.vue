@@ -1,13 +1,14 @@
 <template>
-<x-header :left-options="{showBack: false}" ></x-header>
-  <!-- <div class="vux-demo">
-    <img class="logo" src="../assets/vux_logo.png">
-    <h1>{{ msg }}</h1>
-  </div> -->
-    <scroller :menu='weekList'></scroller>
-  
-  <group title="预定">
-    <!-- <cell :is-link="false"></cell> -->
+  <x-header :left-options="{showBack: false}" ></x-header>
+  <scroller v-el:scroller v-ref:scroller lock-y :scrollbar-x="false">
+    <div id="scroll-content" v-el:scrollcontent :style="calculateWidth(weekList)" >
+      <div class="scroll-item" v-for="item in weekList" @click="changeDay(item.date)" >
+        {{item.name}}<br><span>{{treatDate(item.date)}}</span>
+    </div>
+  </div>
+</scroller>
+  <group>
+    <cell :is-link="false"></cell>
     <cell v-for="courtList in episode_court_map" :title="treatEpisode(courtList.episode)" :is-link="false" >
       <button-tab class='court-list'>
          <button-tab-item v-for="(index, court) in courtList.courtList" :class="[treatDivide2(index) ?'court-l' : 'court-r', court.status == 2 ? 'disable' : '', court.status == 1 ? 'active' : '']"  @click='courtClick(court)' ><span>￥200</span></button-tab-item>
@@ -19,9 +20,9 @@
 </template>
 
 <script>
-import {XHeader, Group, Cell, ButtonTab, ButtonTabItem, XButton} from 'vux/src/components';
+import {XHeader, Group, Cell, ButtonTab, ButtonTabItem, XButton, Scroller} from 'vux/src/components';
 import { _ } from 'underscore/underscore-min';
-import Scroller from './Scroller'
+// import Scroller from './Scroller'
 export default {
   components: {
     Group,
@@ -35,13 +36,20 @@ export default {
   data: function (){
     console.log("data start");
     var customerAppoint = {"customerId" : 1, "customerName" : "syusuk", "appointDate" : "2017-01-05", "appointInfo":[]};
-    var weekList = [{'name':'周一'}, {'name':'周二'}, {'name':'周三'}, {'name':'周四'}, {'name':'周五'}, {'name':'周六'}, {'name':'周日'}];
+    var weekList = [];
+    while(weekList.length < 7) {
+      if (weekList.length == 0) {
+        weekList.push(this.next_day())
+      } else {
+        weekList.push(this.next_day(weekList[weekList.length - 1].date))
+      }
+    }
+    
     return {
       // note: changing this line won't causes changes
       // with hot-reload because the reloaded component
       // preserves its current state and we are modifying
       // its initial state.
-      msg: 'Hello World!',
       appointJson: [],
       episode_court_map: [],
       weekList: weekList
@@ -71,7 +79,45 @@ export default {
     },
     doAppoint: function () {
       console.log(this.episode_court_map);
+    },
+    calculateWidth: function (weekList) {
+      return "width:" + weekList.length * 4.6 + "rem";
+    },
+    changeDay: function (date) {
+      this.weekList.push(this.next_day(date));
+      var width = this.$els.scrollcontent.style.width;
+      width = width.substring(0, width.length-5);
+      width = (parseInt(width) + 4.6) + "rem";
+      this.$els.scrollcontent.style.width = width
+      this.$nextTick(() => {
+        this.$refs.scroller.reset()
+      })
+      console.log(width);
+    },
+    treatDate: function (date) {
+      return date.substring(5);
+    },
+    next_day: function (d) {
+        var week_map = ['周日', '周一','周二','周三','周四','周五','周六'];
+        if (d) {
+          d = new Date(d);
+          d = +d + 1000*60*60*24;
+          d = new Date(d);
+        } else {
+          d = new Date();
+        }
+        var month = (d.getMonth()+1);
+        var day = d.getDate();
+        if (month < 10) {
+          month = "0" + month;
+        }
+        if (day < 10) {
+          day = "0" + day;
+        }
+        var s = d.getFullYear()+"-"+month+"-"+day;
+        return {'name': week_map[d.getDay()], 'date': s};
     }
+    
   }
 }
 
@@ -171,5 +217,10 @@ export default {
 .weui_cell_primary {
   -webkit-box-fles: 0 !important;
   flex: 0 !important;
+}
+.scroll-item {
+  display: inline-block;
+  width: 4.6rem;
+  text-align: center;
 }
 </style>
