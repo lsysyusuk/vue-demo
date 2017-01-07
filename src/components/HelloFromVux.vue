@@ -40,7 +40,6 @@ export default {
   },
   data: function (){
     console.log("data start");
-    var customerAppoint = {"customerId" : 1, "customerName" : "syusuk", "appointDate" : "2017-01-05", "appointInfo":[]};
     var weekList = [];
     while(weekList.length < 7) {
       if (weekList.length == 0) {
@@ -58,7 +57,7 @@ export default {
       appointJson: [],
       episode_court_map: [],
       weekList: weekList,
-      current_date: weekList[2].date
+      current_date: weekList[2].date,
     }
     
   },
@@ -84,7 +83,17 @@ export default {
       return (num % 2) > 0 ? false : true
     },
     doAppoint: function () {
-      console.log(this.episode_court_map);
+      var appointInfo = [];
+      _.each(this.episode_court_map, function (_episode) {
+          _.each(_episode.courtList, function (court) {
+            if (court.status == 1) {
+              appointInfo.push({'episode': _episode.episode, 'court': court.court, 'status': 1})
+            }
+          })
+      });
+      this.$http.post('http://127.0.0.1/lantu/customer/doAppoint.json',{appointDate:this.current_date, appointInfo: JSON.stringify(appointInfo)}).then(function (res) {
+      console.log(res.data);
+      });
     },
     calculateWidth: function (weekList) {
       return "width:" + weekList.length * 4.6 + "rem";
